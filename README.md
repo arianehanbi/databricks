@@ -55,6 +55,31 @@ SELECT count(DISTINCT firstName)
 FROM SSANames;
 ```
 
+* View metadata; Detailed Table Information contains information about the table's database name, original source file type and location, and more.
+
+```
+DESCRIBE tablename;
+DESCRIBE EXTENDED tablename;
+```
+
+* Instead of simply returning the top rows, we can get a random sampling of rows using the function RAND() to return random rows.
+
+```
+SELECT * FROM tablename
+ORDER BY RAND()
+LIMIT 3;
+```
+
+* Explode a nested object: 
+
+We can observe from the output that the column contains a nested object with named key-value pairs. <br>
+
+**EXPLODE** is used with arrays and elements of a map expression. When used with an array, it splits the elements into multiple rows. Used with a map, it splits the elements of a map into multiple rows and columns and uses the default names, key and value, to name the new columns. 
+
+```
+SELECT EXPLODE(colname) FROM DCDataRaw;
+```
+
 <br>
 
 # Join Two Tables
