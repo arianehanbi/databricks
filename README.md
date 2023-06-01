@@ -2,7 +2,6 @@
 Apache Spark SQL
 
 <br>
-<br>
 
 # Create Table
 Create table using the Parquet file format, Parquet is an open-source, column-based file format. You can specify how you want your table to be written with the USING keyword.
@@ -28,7 +27,6 @@ CREATE TABLE movieRatings (
 ```
 
 <br>
-<br>
 
 # Temporary Views
 Temporary views are useful for data exploration. It gives you a name to query from SQL, but unlike a table, does not carry over when you restart the cluster or switch to a new notebook.
@@ -46,7 +44,6 @@ FROM
 ```
 
 <br>
-<br>
 
 # Quarying Tables
 
@@ -58,7 +55,6 @@ SELECT count(DISTINCT firstName)
 FROM SSANames;
 ```
 
-<br>
 <br>
 
 # Join Two Tables
@@ -82,7 +78,6 @@ JOIN SSADistinctNames ON firstName = ssaFirstName
 ```
 
 <br>
-<br>
 
 
 #
@@ -91,12 +86,25 @@ JOIN SSADistinctNames ON firstName = ssaFirstName
 ```
 
 <br>
+
+#
+
+```
+```
+
 <br>
 
+#
+
+```
+```
 
 <br>
+
+#
+
+```
+```
+
 <br>
 
-
-<br>
-<br>
