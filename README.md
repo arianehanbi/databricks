@@ -80,9 +80,15 @@ JOIN SSADistinctNames ON firstName = ssaFirstName
 <br>
 
 
-#
+# Caching Table
+
+- Caching places a table into temporary storage across the cluster.
+- However, if we are storing data in memory, there is some time and storage cost. So, be careful!
 
 ```
+CACHE TABLE tablename;
+
+UNCACHE TABLE IF EXISTS tablename;
 ```
 
 <br>
