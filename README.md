@@ -316,15 +316,89 @@ GROUP BY CUBE (dc_id, device_type)
 ORDER BY dc_id, device_type;
 ```
 
-#### 
-```
-```
-
 <br>
 
-#
+# PARTITIONING
+- The result of this kind of partitioning is that the table is stored in separate files. This may speed up subsequent queries that can filter out certain partitions.
+- **SHOW PARTITIONS** to see how your data is partitioned. In this case, we can verify that the data has been partitioned according to device type.
+```
+CREATE TABLE IF NOT EXISTS p_tablename
+PARTITIONED BY (device_type)
+AS
+  SELECT
+    dc_id,
+    date,
+    temps,
+    REDUCE(temps, 0, (t, acc) -> t + acc, acc ->(acc div size(temps))) as avg_daily_temp_c,
+    device_type
+  FROM DeviceData;
+```
 
 ```
+SHOW PARTITIONS tablename
+```
+<br>
+
+# WIDGET
+Input widgets allow you to **add parameters to your notebooks and dashboards**. You can create and remove widgets, as well as retrieve values from them within a SQL query. Once created, they appear at the top of your notebook. You can design them to take user input as a:
+
+- dropdown: provide a list of options for the user to select from
+- text: user enters input as text
+- combobox: Combination of text and dropdown. User selects a value from a provided list or input one in the text box.
+- multiselect: Select one or more values from a list of provided values
+```
+CREATE WIDGET DROPDOWN selectedDeviceType DEFAULT "sensor-inest" CHOICES
+SELECT DISTINCT device_type
+FROM tablename
+```
+
+getArgument() to retrieve the current value selected in the widget.
+```
+SELECT 
+  device_type,
+  ROUND(AVG(avg_daily_temp_c),4) AS avgTemp,
+  ROUND(STD(avg_daily_temp_c), 2) AS stdTemp
+FROM p_tablename
+WHERE device_type = getArgument("selectedDeviceType")
+GROUP BY device_type
+```
+
+```
+REMOVE WIDGET selectedDeviceType
+```
+<br>
+
+# Window Functions
+They calculate a return variable for every input row of a table based on a group of rows selected by the user, the frame. To use window functions, we need to mark that a function is used as **a window by adding an OVER clause** after a supported function in SQL. Within the OVER clause, you specify which rows are included in the frame associated with this window. <br>
+
+In the example, the function we will use is `AVG`. We define the Window Specification associated with this function with `OVER(PARTITION BY ...)`. The results show that the average monthly temperature is calculated for a data center on a given date. The `WHERE` clause at the end of this query is included to show a whole month of data from a single data center.
+```
+SELECT 
+  dc_id,
+  month(date),
+  avg_daily_temp_c,
+  AVG(avg_daily_temp_c) OVER (PARTITION BY month(date), dc_id) AS avg_monthly_temp_c
+FROM p_tablename
+WHERE month(date)="8" AND dc_id = "dc-102";
+```
+
+```
+WITH DiffChart AS
+(
+SELECT 
+  dc_id,
+  date,
+  avg_daily_temp_c,
+  AVG(avg_daily_temp_c) OVER (PARTITION BY month(date), dc_id) AS avg_monthly_temp_c  
+FROM AvgTemps
+)
+SELECT 
+  dc_id,
+  date,
+  avg_daily_temp_c,
+  avg_monthly_temp_c,
+  avg_daily_temp_c - ROUND(avg_monthly_temp_c) AS degree_diff
+FROM DiffChart;
 ```
 
 <br>
