@@ -154,7 +154,6 @@ JOIN SSADistinctNames ON firstName = ssaFirstName
 
 
 # Caching Table
-
 - Caching places a table into temporary storage across the cluster.
 - However, if we are storing data in memory, there is some time and storage cost. So, be careful!
 
@@ -167,8 +166,8 @@ UNCACHE TABLE IF EXISTS tablename;
 <br>
 
 # Common Table Expressions (CTE) 
-**CTE starts with a WITH clause** <br>
-CTEs are supported in Spark SQL. A CTE provides a temporary result set which you can then use in a SELECT statement. These are different from **temporary views** in that they cannot be used beyond the scope of a single query. In this case, we will use the CTE to get a closer look at the nested data without writing a new table or view. CTEs use the WITH clause to start defining the expression.
+- **CTE starts with a WITH clause** 
+- CTEs are supported in Spark SQL. A CTE provides a _temporary result_ set which you can then use in a SELECT statement. These are different from **temporary views** in that they cannot be used beyond the scope of a single query. In this case, we will use the CTE to get a closer look at the nested data without writing a new table or view. 
 ```
 WITH ExplodeSource  -- specify the name of the result set we will query
 AS                  
@@ -195,7 +194,8 @@ FROM               -- this query is coming from the CTE we named
 <br>
 
 # Create Table as Select (CTAS)
-CTEs like those in the cell above are temporary and cannot be queried again. In the next cell, we demonstrate how you create a table using the common table expression syntax.
+- CTEs like those in the cell above are temporary and cannot be queried again. 
+- Here, we demonstrate how you create a table using the common table expression syntax.
 ```
 CREATE TABLE DeviceData                 
 USING parquet
@@ -220,6 +220,111 @@ FROM ExplodeSource;
 
 ```
 SELECT * FROM DeviceData
+```
+
+<br>
+
+# Higher-order Functions
+- To deal with complex data types.
+- we demonstrate how to use higher-order functions to transform, filter, and flag array data while preserving the original structure.
+
+#### TRANSFORM
+- It uses the provided function to transform all elements of an array. 
+- SQL's built-in functions are designed to operate on a single, simple data type within a cell. They cannot process array values. Transform can be particularly useful _when you want to apply an existing function to each element in an array_. In this case, we want to rewrite all of the names in the categories column in lowercase.
+```
+TRANSFORM(input_array, iterator -> LOWER(iterator)) new_colname
+
+SELECT 
+  TRANSFORM(categories, cat -> LOWER(cat)) lwrCategories
+FROM tablename
+```
+
+#### FILTER
+- It allows us to create a new column based on whether or not values in an array meet a certain condition. 
+- Let's say we want to remove the category "Engineering Blog" from all records in our categories column. I can use the FILTER function to create a new column that excludes that value from the each array.
+```
+FILTER (input_array, iterator -> condition) new_colname
+
+SELECT
+  categories,
+  FILTER (categories, category -> category <> "Engineering Blog") woEngineering
+FROM tablename
+```
+
+#### EXISTS
+- It tests whether a statement is true for one or more elements in an array. 
+- Let's say we want to flag all blog posts with "Company Blog" in the categories field. I can use the EXISTS function to mark which entries include that category.
+```
+EXISTS (input_array, iterator -> iterator = "Company Blog") new_colname
+
+SELECT
+  categories,
+  EXISTS (categories, c -> c = "Company Blog") companyFlag
+FROM tablename
+
+```
+
+#### REDUCE
+- It is more advanced than TRANSFORM
+- It takes two lambda functions. You can use it to reduce the elements of an array to a single value by merging the elements into a buffer, and applying a finishing function on the final buffer.
+- We will use the reduce function to find an average value, by day, for our CO2 readings. Take a closer look at the individual pieces of the REDUCE function by reviewing the list below.
+```
+REDUCE(input_array, starting_point_for_buffer, (value, buffer_value) -> buffer_function, buffer_value ->(finishing_function))
+
+REDUCE(co2_level, 0, (c, acc) -> c + acc, acc ->(acc div size(co2_level))) AS averageCo2Level
+```
+
+#### PIVOT
+- A pivot table allows you to transform rows into columns and group by any data field.
+1. The SELECT statement inside the parentheses in the input for this table
+2. The first argument in the clause is an aggregate function and the column to be aggregated. Then, we specify the **pivot column in the FOR subclause**. The IN operator contains the pivot column values.
+```
+SELECT * FROM (
+  SELECT device_type, averageCo2Level 
+  FROM tablename
+)
+PIVOT (
+  ROUND(AVG(averageCo2Level), 2) avg_co2 
+  FOR device_type IN ('sensor-ipad', 'sensor-inest', 'sensor-istick', 'sensor-igauge')
+  );
+```
+
+#### ROLLUPS
+- Rollups are operators used with the GROUP BY clause. 
+- Rollups are creating **subtotals** for a specific group of data. The subtotals introduce new rows.
+```
+SELECT 
+  COALESCE(dc_id, "All data centers") AS dc_id,
+  COALESCE(device_type, "All devices") AS device_type,
+  ROUND(AVG(averageCo2Level)) AS avgCo2Level
+FROM tablename
+GROUP BY ROLLUP (dc_id, device_type)
+ORDER BY dc_id, device_type;
+```
+
+#### CUBE
+- CUBE is also an operator used with the GROUP BY clause. 
+- Similar to ROLLUP, you can use CUBE to generate summary values for sub-elements grouped by column value. 
+- CUBE is different than ROLLUP in that it will also generate **subtotals for all combinations of grouping columns** specified in the GROUP BY clause.
+```
+SELECT 
+  COALESCE(dc_id, "All data centers") AS dc_id,
+  COALESCE(device_type, "All devices") AS device_type,
+  ROUND(AVG(averageCo2Level))  AS avgCo2Level
+FROM tablename
+GROUP BY CUBE (dc_id, device_type)
+ORDER BY dc_id, device_type;
+```
+
+#### 
+```
+```
+
+<br>
+
+#
+
+```
 ```
 
 <br>
