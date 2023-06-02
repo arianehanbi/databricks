@@ -4,7 +4,7 @@ Apache Spark SQL
 <br>
 
 # Create Table
-- Create table using the Parquet file format.
+- Create table using the Parquet file format. <br>
 **Parquet** is an open-source, column-based file format. You can specify how you want your table to be written with the USING keyword.
 ```
 CREATE TABLE People10M
@@ -60,47 +60,41 @@ DESCRIBE tablename;
 DESCRIBE EXTENDED tablename;
 ```
 
-* Instead of simply returning the top rows, we can get a random sampling of rows using the function RAND() to return random rows.
+#### Checking NULLs
+```
+SELECT count(*) FROM tablename WHERE Description IS NULL;
+```
 
+#### COALESCE()
+We can use it to **replace NULL values**. For all NULL values in the Description column, COALESCE() will replace the null with a value you include in the function.
+```
+COALESCE(colname, 0)
+```
+
+#### RAND()
+Instead of simply returning the top rows, we can get a random sampling of rows using the function RAND() to return random rows.
 ```
 SELECT * FROM tablename
 ORDER BY RAND()
 LIMIT 3;
 ```
 
-* Sample the table
-
-While accessing a random sample using the **RAND()** is a common way to retrieve a sample with other SQL dialects, Spark SQL includes a built-in function that you may want to use instead. The function, **TABLESAMPLE**, allows you to return a number of rows or a certain percentage of the data. In the cell directly below this one, we show that TABLESAMPLE can be used to access a specific number of rows. In the following, we show that it can be used to access a given percentage of the data. 
-
+#### TABLESAMPLE 
+**Sample the table** <br>
+While accessing a random sample using the RAND() is a common way to retrieve a sample with other SQL dialects, Spark SQL includes a built-in function that you may want to use instead. The function, **TABLESAMPLE**, allows you to return a number of rows or a certain percentage of the data. In the cell directly below this one, we show that TABLESAMPLE can be used to access a specific number of rows. In the following, we show that it can be used to access a given percentage of the data. 
 ```
 SELECT * FROM tablename TABLESAMPLE (5 ROWS)
 SELECT * FROM tablename TABLESAMPLE (2 PERCENT) ORDER BY colname 
 ```
 
-* Explode a nested object: We can observe from the output that the column contains a nested object with named key-value pairs. <br>
-
+#### EXPLODE
+Explode a nested object: We can observe from the output that the column contains a nested object with named key-value pairs. <br>
+**EXPLODE** is used with arrays and elements of a map expression. When used with an array, it splits the elements into multiple rows. Used with a map, it splits the elements of a map into multiple rows and columns and uses the default names, key and value, to name the new columns. 
 ```
 SELECT EXPLODE(colname) FROM tablename;
 ```
 
-**EXPLODE** is used with arrays and elements of a map expression. When used with an array, it splits the elements into multiple rows. Used with a map, it splits the elements of a map into multiple rows and columns and uses the default names, key and value, to name the new columns. 
-
-
-* Checking NULLs
-
-```
-SELECT count(*) FROM tablename WHERE Description IS NULL;
-```
-
-* COALESCE()
-
-We can use it to **replace NULL values**. For all NULL values in the Description column, COALESCE() will replace the null with a value you include in the function.
-
-```
-COALESCE(colname, 0)
-```
-
-* SPLIT()
+#### SPLIT()
 This command **splits a string value around a specified character** and returns an array. An array is a list of values that you can access by position. This list is zero-indexed for the index of the first position is 0. ex. Date 1/10/21 8:26
 
 ```
@@ -109,7 +103,7 @@ SPLIT(Date, "/")[1] day
 SPLIT(SPLIT(Date, " ")[0], "/")[2] year
 ```
 
-* LPAD()
+#### LPAD()
 It **inserts characters to the left of a string** until the string reachers a certain length. In this example, we use LPAD to insert a zero to the left of any value in the month or day column that is not two digits. 
 
 ```
@@ -117,7 +111,7 @@ LPAD(month, 2, 0) AS month
 LPAD(day, 2, 0) AS day
 ```
 
-* CONCAT_WS()
+#### CONCAT_WS()
 returns a concatenated string with a specified separator.
 
 ```
@@ -125,7 +119,7 @@ CONCAT_WS("/", month, day, year) sDate
 TO_DATE(sDate, "MM/dd/yy") date
 ```
 
-* CAST()
+#### CAST()
 **Cast()** show the timestamp as a human-readable time and date.
 
 ```
@@ -133,7 +127,7 @@ CAST(timeRecorded as timestamp)
 CAST(UnitPrice AS DOUBLE)
 ```
 
-*
+#### 
 
 ```
 ```
