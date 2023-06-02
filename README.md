@@ -408,6 +408,77 @@ FROM DiffChart;
 
 <br>
 
+# Delta Table
+
+1. Bronze level table <br>
+Raw data.
+2. Silver level table <br>
+It focus on creating an easily queryable table that includes most or all of the data, with all columns accurately typed and object properties unpacked into individual columns. It can be done simple with `USING DELTA`.
+
+```
+CREATE OR REPLACE TABLE health_tracker_silver 
+USING DELTA
+PARTITIONED BY (p_device_id)
+LOCATION "/health_tracker/silver" AS (
+  SELECT
+    value.name,
+    value.heartrate,
+    CAST(FROM_UNIXTIME(value.time) AS timestamp) AS time,
+    CAST(FROM_UNIXTIME(value.time) AS DATE) AS dte,
+    value.device_id p_device_id
+  FROM
+    health_tracker_data_2020_01
+)
+```
+
+#### Time travel
+Check the number of records in the different versions of our table.
+```
+SELECT COUNT(*) FROM health_tracker_silver VERSION AS OF 0
+SELECT COUNT(*) FROM health_tracker_silver VERSION AS OF 1
+```
+```
+DESCRIBE HISTORY health_tracker_silver
+```
+
+#### Optimize Table
+If your organization continuously writes data to a Delta table, it will over time accumulate a large number of files, especially if you add data in small batches. For analysts, a common complaint in querying data lakes is read efficiency; and having a large collection of small files to sift through everytime data is queried can create performance problems. Ideally, a large number of small files should be rewritten into a smaller number of larger files on a regular basis, which will improve the speed of read queries from a table. This is known as compaction. You can compact a table using the `OPTIMIZE` command. **Z-ordering** co-locates column information (recall that Delta is columnar storage). Co-locality is used by Delta Lake data-skipping algorithms to dramatically reduce the amount of data that needs to be read. You can specify multiple columns for ZORDER BY as a comma-separated list. However, the effectiveness of the locality drops with each additional column.
+```
+OPTIMIZE tablename ZORDER BY (DayofWeek);
+```
+
+3. Gold level table <br>
+```
+DROP TABLE IF EXISTS health_tracker_gold;              
+
+CREATE TABLE health_tracker_gold                        
+USING DELTA
+LOCATION "/health_tracker/gold" AS 
+  SELECT 
+    AVG(heartrate) AS meanHeartrate,
+    STD(heartrate) AS stdHeartrate,
+    MAX(heartrate) AS maxHeartrate
+  FROM health_tracker_silver
+  GROUP BY p_device_id
+```
+
+<br>
+
+#
+
+```
+```
+
+<br>
+
+
+#
+
+```
+```
+
+<br>
+
 #
 
 ```
