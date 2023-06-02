@@ -123,7 +123,8 @@ CAST(timeRecorded AS timestamp)
 CAST(UnitPrice AS DOUBLE)
 ```
 ```
-TO_TIMESTAMP(timestamp, 'yyyy/MM/dd HH:mm:ss')
+TO_TIMESTAMP(timestamp, 'yyyy/MM/dd HH:mm:ss') datetime
+TO_DATE(datetime) AS date
 ```
 
 #### 
