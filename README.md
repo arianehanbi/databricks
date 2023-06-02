@@ -4,7 +4,8 @@ Apache Spark SQL
 <br>
 
 # Create Table
-Create table using the Parquet file format, Parquet is an open-source, column-based file format. You can specify how you want your table to be written with the USING keyword.
+- Create table using the Parquet file format.
+**Parquet** is an open-source, column-based file format. You can specify how you want your table to be written with the USING keyword.
 ```
 CREATE TABLE People10M
 USING parquet OPTIONS (
@@ -52,8 +53,8 @@ SELECT count(DISTINCT firstName)
 FROM tablename;
 ```
 
-* DESCRIBE - View metadata; Detailed Table Information contains information about the table's database name, original source file type and location, and more. <br>
-With **EXTENDED**, we will get more detailed table information, like which database holds the data and the table name.
+#### DESCRIBE 
+View metadata; Detailed Table Information contains information about the table's database name, original source file type and location, and more. With **EXTENDED**, we will get more detailed table information, like which database holds the data and the table name.
 ```
 DESCRIBE tablename;
 DESCRIBE EXTENDED tablename;
@@ -157,7 +158,6 @@ CREATE OR REPLACE TEMPORARY VIEW PeopleDistinctNames AS
 SELECT firstName 
 FROM PeopleDistinctNames 
 JOIN SSADistinctNames ON firstName = ssaFirstName
-
 ```
 
 <br>
