@@ -369,6 +369,7 @@ REMOVE WIDGET selectedDeviceType
 <br>
 
 # Window Functions
+The OVER clause defines the 'window' in a window function! <br>
 They calculate a return variable for every input row of a table based on a group of rows selected by the user, the frame. To use window functions, we need to mark that a function is used as **a window by adding an OVER clause** after a supported function in SQL. Within the OVER clause, you specify which rows are included in the frame associated with this window. <br>
 
 In the example, the function we will use is `AVG`. We define the Window Specification associated with this function with `OVER(PARTITION BY ...)`. The results show that the average monthly temperature is calculated for a data center on a given date. The `WHERE` clause at the end of this query is included to show a whole month of data from a single data center.
