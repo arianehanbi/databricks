@@ -122,6 +122,9 @@ It shows the timestamp as a human-readable time and date.
 CAST(timeRecorded AS timestamp) 
 CAST(UnitPrice AS DOUBLE)
 ```
+```
+TO_TIMESTAMP(timestamp, 'yyyy/MM/dd HH:mm:ss')
+```
 
 #### 
 
