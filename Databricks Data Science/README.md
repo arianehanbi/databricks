@@ -7,18 +7,27 @@ spark_df = spark.read.table("tablename")
 pandas_df = park_df.toPandas()
 ```
 
-<br>
-
-# 
-
 ```
+df = spark.sql('SELECT * FROM tablename').toPandas()
 ```
 
 <br>
 
-# 
+# Convert to Spark DataFrames
 
 ```
+sdf = spark.createDataFrame(df)
+```
+
+<br>
+
+# Save data to SQL
+
+```
+train_sdf.write.format("delta").mode("overwrite").save("/dsfda/ht_users_train")
+spark.sql(
+  "CREATE TABLE IF NOT EXISTS dsfda.ht_users_train USING DELTA LOCATION '/dsfda/ht_users_train'"
+)
 ```
 
 <br>
