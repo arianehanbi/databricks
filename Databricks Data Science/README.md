@@ -3,7 +3,7 @@
 # Laod Data
 The `.toPandas()` method converts the Spark DataFrame to a Pandas DataFrame.
 ```
-spark_df = spark.read.table("ht_agg")
+spark_df = spark.read.table("tablename")
 pandas_df = park_df.toPandas()
 ```
 
